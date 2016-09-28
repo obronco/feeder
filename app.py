@@ -44,7 +44,7 @@ def feeder():
 
 def update_quotes(q):
     if type(q) is dict and 'Hora' in q.keys():
-        _hour = q['Hora']
+        _hour = excel_dtm_to_str(q['Hora'])
 
 @route('/update', method='POST')
 def update():
