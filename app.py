@@ -60,4 +60,4 @@ def update():
 
 
 if __name__ == '__main__':
-    run(server=, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
