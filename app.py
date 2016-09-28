@@ -2,12 +2,13 @@
 """
 Feeder REST Api
 """
+import datetime
 import json
 import os
 
 from bottle import route, run, template, request
 
-_hour = ""
+_hour = "n/a"
 
 def excel_dtm_to_str(xldate):
     try:
@@ -38,25 +39,28 @@ def excel_dtm_to_str(xldate):
 def index(name):
     return template('<b>Hello {{name}}</b>!', name=name)
 
-@feeder('/feeder', method='GET')
+@route('/feeder', method='GET')
 def feeder():
     return template('<b>Last update: {{dtm}}</b>', dtm=_hour)
 
 def update_quotes(q):
+    global _hour
     if type(q) is dict and 'Hora' in q.keys():
+        # print(q['Hora'])
         _hour = excel_dtm_to_str(q['Hora'])
+    else:
+        _hour = "bad update"
 
 @route('/update', method='POST')
 def update():
+    global _hour
     try:
         # Read
-        new_quotes = json.loads(request.json)
-        # Process
-        update_quotes(new_quotes)
-        reply = feeder()
+        #print(request.json)
+        update_quotes(request.json)
     except:
-        reply = template('<b>Last update: failed</b>')
-    return reply
+        _hour = "exception"
+    return template('<b>Last update: {{dtm}}</b>', dtm=_hour)
 
 
 if __name__ == '__main__':
