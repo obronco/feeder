@@ -48,11 +48,15 @@ def update_quotes(q):
 
 @route('/update', method='POST')
 def update():
-    # Read
-    new_quotes = json.loads(request.json)
-    # Process
-    update_quotes(new_quotes)
-    return 'quotes were updated'
+    try:
+        # Read
+        new_quotes = json.loads(request.json)
+        # Process
+        update_quotes(new_quotes)
+        reply = feeder()
+    except:
+        reply = template('<b>Last update: failed</b>')
+    return reply
 
 
 if __name__ == '__main__':
