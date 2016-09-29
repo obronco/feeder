@@ -9,20 +9,41 @@ import os
 from bottle import route, run, template, request
 
 TPL = '''
+<html>
+<head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+</head>
+<body>
 <b>Last update: {{ts}}</b>
 
-<table border="1">
+<table>
 <tr>
-<td><b>Classe</b></td>
-<td><b>Ativo</b></td>
-<td><b>Ult</b></td>
-<td><b>OCp</b></td>
-<td><b>OVd</b></td>
-<td><b>Fech D-0</b></td>
-<td><b>Fech D-1</b></td>
-<td><b>Min</b></td>
-<td><b>Max</b></td>
-<td><b>Abe</b></td>
+<th>Classe</th>
+<th>Ativo</th>
+<th>Ult</th>
+<th>OCp</th>
+<th>OVd</th>
+<th>Fech D-0</th>
+<th>Fech D-1</th>
+<th>Min</th>
+<th>Max</th>
+<th>Abe</th>
 </tr>
 %for entry in quotes:
     <tr>
@@ -32,6 +53,8 @@ TPL = '''
     </tr>
 %end
 </table>
+</body>
+</html>
 '''
 
 _quotes = {'timestamp': 'n/a', 'data': []}
