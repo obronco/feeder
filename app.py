@@ -8,7 +8,33 @@ import os
 
 from bottle import route, run, template, request
 
-_hour = "n/a"
+TPL = '''
+<b>Last update: {{ts}}</b>
+
+<table border="1">
+<tr>
+<td><b>Classe</b></td>
+<td><b>Ativo</b></td>
+<td><b>Ult</b></td>
+<td><b>OCp</b></td>
+<td><b>OVd</b></td>
+<td><b>Fech D-0</b></td>
+<td><b>Fech D-1</b></td>
+<td><b>Min</b></td>
+<td><b>Max</b></td>
+<td><b>Abe</b></td>
+</tr>
+%for entry in quotes:
+    <tr>
+        %for col in entry:
+            <td>{{col}}</td>
+        %end
+    </tr>
+%end
+</table>
+'''
+
+_quotes = {'timestamp': 'n/a', 'data': []}
 
 def excel_dtm_to_str(xldate):
     try:
@@ -31,9 +57,9 @@ def excel_dtm_to_str(xldate):
             dtm = (datetime.datetime.fromordinal(xldays + 693594) +
                    datetime.timedelta(seconds=seconds))
 
-        return dtm.strftime('%Y-%m-%d %H:%M:%S')
+            return dtm.strftime('%Y-%m-%d %H:%M:%S')
     except:
-        return "N/A"
+        return "invalid timestamp"
 
 @route('/hello/<name>')
 def index(name):
@@ -41,26 +67,20 @@ def index(name):
 
 @route('/feeder', method='GET')
 def feeder():
-    return template('<b>Last update: {{dtm}}</b>', dtm=_hour)
-
-def update_quotes(q):
-    global _hour
-    if type(q) is dict and 'Hora' in q.keys():
-        # print(q['Hora'])
-        _hour = excel_dtm_to_str(q['Hora'])
-    else:
-        _hour = "bad update"
+    return template(TPL, ts=_quotes['timestamp'], quotes=_quotes['data'])
 
 @route('/update', method='POST')
 def update():
-    global _hour
+    global _quotes
     try:
-        # Read
-        #print(request.json)
-        update_quotes(request.json)
+        print(request.json['timestamp'])
+        # validade json
+        if 'timestamp' in request.json.keys():
+            _quotes['timestamp'] = excel_dtm_to_str(request.json['timestamp'])
+            _quotes['data'] = request.json['data']
     except:
-        _hour = "exception"
-    return template('<b>Last update: {{dtm}}</b>', dtm=_hour)
+        _quotes['timestamp'] = "bad update"
+    return template('<b>Last update: {{ts}}</b>', ts=_quotes['timestamp'])
 
 
 if __name__ == '__main__':
