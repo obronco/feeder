@@ -8,55 +8,6 @@ import os
 
 from bottle import route, run, template, request, static_file
 
-TPL = '''
-<html>
-<head>
-<style>
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-
-tr:nth-child(even) {
-    background-color: #dddddd;
-}
-</style>
-</head>
-<body>
-<b>Last update: {{ts}}</b>
-
-<table>
-<tr>
-<th>Classe</th>
-<th>Ativo</th>
-<th>Ult</th>
-<th>OCp</th>
-<th>OVd</th>
-<th>Fech D-0</th>
-<th>Fech D-1</th>
-<th>Min</th>
-<th>Max</th>
-<th>Abe</th>
-</tr>
-%for entry in quotes:
-    <tr>
-        %for col in entry:
-            <td>{{col}}</td>
-        %end
-    </tr>
-%end
-</table>
-</body>
-</html>
-'''
-
 _quotes = {'timestamp': 'n/a', 'data': []}
 
 def excel_dtm_to_str(xldate):
@@ -82,7 +33,7 @@ def excel_dtm_to_str(xldate):
 
             return dtm.strftime('%Y-%m-%d %H:%M:%S')
     except:
-        return "invalid timestamp"
+        return "n/a"
 
 @route('/hello/<name>')
 def index(name):
@@ -103,14 +54,27 @@ def get_quotes():
 def update():
     global _quotes
     try:
+        _aux = {}
+        # check for keys
+        if ('data' in request.json.keys() and
+            'header' in request.json.keys() and
+            'timestamp' in request.json.keys()):
+            _aux['timestamp'] = excel_dtm_to_str(request.json['timestamp'])
+            _aux['header'] = request.json['header']
+            _aux['data'] = request.json['data']
         # validade json
-        if 'timestamp' in request.json.keys():
-            _quotes['timestamp'] = excel_dtm_to_str(request.json['timestamp'])
-            _quotes['header'] = request.json['header']
-            _quotes['data'] = request.json['data']
-        print("Update: %s" % _quotes['timestamp'])
+        print(_aux['data'][0])
+        if (len(_aux['header']) > 0 and
+            (len(_aux['header']) == len(_aux['data'][0])) and
+            _aux['timestamp'] != 'n/a'):
+            # success
+            _quotes = _aux
+            print("Update: %s" % _quotes['timestamp'])
+        else:
+            print("invalid data")
     except:
-        _quotes['timestamp'] = "bad update"
+        print("update failed")
+
     return template('<b>Last update: {{ts}}</b>', ts=_quotes['timestamp'])
 
 
