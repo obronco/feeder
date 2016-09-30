@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 
-from bottle import route, run, template, request
+from bottle import route, run, template, request, static_file
 
 TPL = '''
 <html>
@@ -88,19 +88,27 @@ def excel_dtm_to_str(xldate):
 def index(name):
     return template('<b>Hello {{name}}</b>!', name=name)
 
-@route('/feeder', method='GET')
+# @route('/feeder', method='GET')
+# def feeder():
+#     return template(TPL, ts=_quotes['timestamp'], quotes=_quotes['data'])
+@route('/feeder')
 def feeder():
-    return template(TPL, ts=_quotes['timestamp'], quotes=_quotes['data'])
+    return static_file('feeder.html', root='.')
+
+@route('/getquotes')
+def get_quotes():
+    return _quotes
 
 @route('/update', method='POST')
 def update():
     global _quotes
     try:
-        print(request.json['timestamp'])
         # validade json
         if 'timestamp' in request.json.keys():
             _quotes['timestamp'] = excel_dtm_to_str(request.json['timestamp'])
+            _quotes['header'] = request.json['header']
             _quotes['data'] = request.json['data']
+        print("Update: %s" % _quotes['timestamp'])
     except:
         _quotes['timestamp'] = "bad update"
     return template('<b>Last update: {{ts}}</b>', ts=_quotes['timestamp'])

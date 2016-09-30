@@ -1,0 +1,72 @@
+<html>
+<head>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+<b id="current"> Current time: n/a</b>
+<p></p>
+<b id="timestamp">Last update: n/a</b>
+<p></p>
+<table id="quotes">
+</table>
+
+<script>
+
+function getQuotes(_url) {
+	// var json_data = '{"headers": ["Classe", "Ativo", "Ult", "OCp", "OVd", "Fech D-0", "Fech D-1", "Min", "Max", "Abe"], "timestamp": "2016-09-30 11:45:00", "data": [["Moedas", "BMFXTWO", "", "", "", "3.249", "", "", "", ""], ["Moedas", "PTAX", "", "", "", "3.249", "", "", "", ""]]}';
+	var Httpreq = new XMLHttpRequest();
+	Httpreq.open("GET", _url, false);
+	Httpreq.send(null);
+	return JSON.parse(Httpreq.responseText);
+}
+
+function jsonToTable(obj) {
+	// assert obj.header.length == obj.data[0].length
+	rows = "<tr>";
+	// Headers
+	for(var i = 0; i < obj.header.length; i++) {
+		rows += "<th>" + obj.header[i];
+	}
+	// Rows
+	for(var i = 0; i < obj.data.length; i++) {
+		rows += "<tr>";
+		for(var j = 0; j < obj.data[i].length; j++) {
+			rows += "<td>" + obj.data[i][j];
+		}
+	}
+	return rows;
+}
+
+function currentTime() {
+	var d = new Date();
+	var iso = d.toISOString();
+	var dtm = iso.substring(0, iso.indexOf("."));
+	return dtm.replace("T", " ");
+}
+
+function refreshTable() {
+	var quotes = getQuotes('http://127.0.0.1:5000/getquotes');
+	document.getElementById("current").innerHTML = "Current time: " + currentTime();
+	document.getElementById("timestamp").innerHTML = "Last update: " + quotes.timestamp;
+	document.getElementById("quotes").innerHTML = jsonToTable(quotes);
+}
+
+//var refreshTimer = setInterval(refreshTable, 30000);
+refreshTable();
+</script>
+</body>
+</html>
