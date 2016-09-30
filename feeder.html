@@ -59,7 +59,8 @@ function currentTime() {
 }
 
 function refreshTable() {
-	var quotes = getQuotes('http://127.0.0.1:5000/getquotes');
+	// var quotes = getQuotes('http://127.0.0.1:5000/getquotes');
+	var quotes = getQuotes('https://vast-sierra-66522.herokuapp.com/getquotes');
 	document.getElementById("current").innerHTML = "Current time: " + currentTime();
 	document.getElementById("timestamp").innerHTML = "Last update: " + quotes.timestamp;
 	document.getElementById("quotes").innerHTML = jsonToTable(quotes);
