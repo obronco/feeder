@@ -26,15 +26,6 @@ tr:nth-child(even) {
 
 <script>
 
-function getQuotes(_url) {
-	var json_data = '{"headers": ["Classe", "Ativo", "Ult", "OCp", "OVd", "Fech D-0", "Fech D-1", "Min", "Max", "Abe"], "timestamp": "2016-09-30 11:45:00", "data": [["Moedas", "BMFXTWO", "", "", "", "3.249", "", "", "", ""], ["Moedas", "PTAX", "", "", "", "3.249", "", "", "", ""]]}';
-	//var Httpreq = createCORSRequest("GET", _url);
-	//Httpreq.open("GET", _url, false);
-	//Httpreq.send(null);
-	//return JSON.parse(Httpreq.responseText);
-    return json_data
-}
-
 function jsonToTable(obj) {
 	// assert obj.header.length == obj.data[0].length
 	rows = "<tr>";
@@ -59,16 +50,27 @@ function currentTime() {
 	return dtm.replace("T", " ");
 }
 
-function refreshTable() {
-	// var quotes = getQuotes('http://127.0.0.1:5000/getquotes');
-	var quotes = getQuotes('https://bbg-quotes.herokuapp.com/getquotes');
-	//document.getElementById("current").innerHTML = "Current time: " + currentTime();
-	document.getElementById("timestamp").innerHTML = "Last update: " + quotes.timestamp;
-	document.getElementById("quotes").innerHTML = jsonToTable(quotes);
-}
+var URL = "https://bbg-quotes.herokuapp.com/getquotes";
+//var URL = "http://localhost:5000/getquotes";
 
-//var refreshTimer = setInterval(refreshTable, 30000);
-refreshTable();
+var xhr = new XMLHttpRequest();
+xhr.open("GET", URL, true);
+xhr.onload = function (e) {
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            var quotes = JSON.parse(xhr.responseText);
+            document.getElementById("timestamp").innerHTML = "Last update: " + quotes.timestamp;
+            document.getElementById("quotes").innerHTML = jsonToTable(quotes);
+        } else {
+            console.error(xhr.statusText);
+        }
+    }
+};
+xhr.onerror = function (e) {
+  console.error(xhr.statusText);
+};
+xhr.send(null);
+
 </script>
 </body>
 </html>

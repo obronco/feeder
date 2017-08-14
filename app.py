@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 
-from bottle import route, run, template, request, static_file
+from bottle import route, run, template, request, static_file  #, hook, response
 
 _quotes = {'timestamp': 'n/a', 'data': []}
 
@@ -35,6 +35,16 @@ def excel_dtm_to_str(xldate):
     except:
         return "n/a"
 
+# @hook('after_request')
+# def enable_cors():
+#     """
+#     You need to add some headers to each request.
+#     Don't use the wildcard '*' for Access-Control-Allow-Origin in production.
+#     """
+#     response.headers['Access-Control-Allow-Origin'] = '*'
+#     response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST'
+#     response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+        
 @route('/hello/<name>')
 def index(name):
     return template('<b>Hello {{name}}</b>!', name=name)
@@ -79,4 +89,8 @@ def update():
 
 
 if __name__ == '__main__':
-    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    if os.environ.get('APP_LOCATION') == 'heroku':
+        run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    else:
+        run(host='localhost', port=5000, debug=True)
+    # run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
