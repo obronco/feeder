@@ -26,10 +26,37 @@ tr:nth-child(even) {
 
 <script>
 
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+
+    // Check if the XMLHttpRequest object has a "withCredentials" property.
+    // "withCredentials" only exists on XMLHTTPRequest2 objects.
+    xhr.open(method, url, true);
+
+  } else if (typeof XDomainRequest != "undefined") {
+
+    // Otherwise, check if XDomainRequest.
+    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+
+  } else {
+
+    // Otherwise, CORS is not supported by the browser.
+    xhr = null;
+
+  }
+  return xhr;
+}
+
 function getQuotes(_url) {
 	// var json_data = '{"headers": ["Classe", "Ativo", "Ult", "OCp", "OVd", "Fech D-0", "Fech D-1", "Min", "Max", "Abe"], "timestamp": "2016-09-30 11:45:00", "data": [["Moedas", "BMFXTWO", "", "", "", "3.249", "", "", "", ""], ["Moedas", "PTAX", "", "", "", "3.249", "", "", "", ""]]}';
-	var Httpreq = new XMLHttpRequest();
-	Httpreq.open("GET", _url, false);
+	var Httpreq = createCORSRequest("GET", _url);
+    if(!Httpreq) {
+        throw new Error('CORS not supported')
+    }
+	// Httpreq.open("GET", _url, false);
 	Httpreq.send(null);
 	return JSON.parse(Httpreq.responseText);
 }
