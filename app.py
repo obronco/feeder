@@ -6,7 +6,7 @@ import datetime
 import json
 import os
 
-from bottle import route, run, template, request, static_file  hook, response
+from bottle import route, run, template, request, static_file, hook, response
 
 _quotes = {'timestamp': 'n/a', 'data': []}
 
