@@ -7,8 +7,10 @@ import json
 import os
 
 from bottle import route, run, template, request, static_file, hook, response
+from threading import Lock
 
 _quotes = {'timestamp': 'n/a', 'data': []}
+_lock = Lock()
 
 def excel_dtm_to_str(xldate):
     try:
@@ -40,17 +42,27 @@ def enable_cors():
     response.headers['Access-Control-Allow-Origin'] = '*'
     # response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST'
     # response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
-        
+
 @route('/hello/<name>')
 def index(name):
     return template('<b>Hello {{name}}</b>!', name=name)
 
-# @route('/feeder', method='GET')
-# def feeder():
-#     return template(TPL, ts=_quotes['timestamp'], quotes=_quotes['data'])
+@route('/feeder/<classe>', method='GET')
+def feeder(classe):
+    global _quotes
+    # filter quotes
+    filtered = []
+    try:
+        filtered = [row for row in _quotes['data'] if row[0].lower() == classe]
+        return template('quotes.tpl', ts=_quotes['timestamp'], quotes=filtered)
+    except:
+        return template('<b>Last update: {{ts}}</b>', ts=_quotes['timestamp'])
+
 @route('/feeder')
 def feeder():
     return static_file('feeder.html', root='.')
+    # global _quotes
+    # return template('quotes.tpl', ts=_quotes['timestamp'], quotes=_quotes)
 
 @route('/getquotes')
 def get_quotes():
